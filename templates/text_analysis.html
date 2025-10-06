@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Text Analysis - Academic Integrity Checker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-edit"></i> Analyze Text Content</h3>
+                <p class="mb-0">Paste or type your text for comprehensive academic integrity analysis</p>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="text" class="form-label">Text Content</label>
+                        <textarea class="form-control" id="text" name="text" rows="15"
+                                  placeholder="Paste your academic text here for analysis..." required></textarea>
+                        <div class="form-text">
+                            Minimum 100 characters required for meaningful analysis
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="analysis_type" class="form-label">Analysis Type</label>
+                        <select class="form-select" id="analysis_type" name="analysis_type">
+                            <option value="document">Academic Document Analysis</option>
+                            <option value="resume">Resume/CV Analysis</option>
+                        </select>
+                        <div class="form-text">
+                            Select the type of content you're analyzing
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-info-circle"></i> Academic Document Analysis</h6>
+                                    <ul class="mb-0 small">
+                                        <li>Plagiarism detection</li>
+                                        <li>AI content identification</li>
+                                        <li>Citation validation</li>
+                                        <li>Writing quality assessment</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-info-circle"></i> Resume Analysis</h6>
+                                    <ul class="mb-0 small">
+                                        <li>Format and structure check</li>
+                                        <li>Content quality assessment</li>
+                                        <li>Keyword optimization</li>
+                                        <li>Completeness evaluation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search"></i> Analyze Text
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-lightbulb"></i> Tips for Better Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>For Academic Documents:</h6>
+                        <ul>
+                            <li>Include the full document text for comprehensive analysis</li>
+                            <li>Ensure citations are properly formatted</li>
+                            <li>Include references section if available</li>
+                            <li>Remove personal information if concerned about privacy</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>For Resume Analysis:</h6>
+                        <ul>
+                            <li>Include all resume sections (experience, education, skills)</li>
+                            <li>Use standard resume formatting</li>
+                            <li>Include quantifiable achievements</li>
+                            <li>Use action verbs in descriptions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> What You'll Get</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Overall integrity score</li>
+                    <li><i class="fas fa-check text-success"></i> Detailed plagiarism report</li>
+                    <li><i class="fas fa-check text-success"></i> AI content detection results</li>
+                    <li><i class="fas fa-check text-success"></i> Citation validation feedback</li>
+                    <li><i class="fas fa-check text-success"></i> Writing quality assessment</li>
+                    <li><i class="fas fa-check text-success"></i> Personalized recommendations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-download"></i> Download Options</h5>
+            </div>
+            <div class="card-body">
+                <p>After analysis, you can:</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-file-pdf text-danger"></i> Download comprehensive PDF report</li>
+                    <li><i class="fas fa-share-alt text-primary"></i> Share results with others</li>
+                    <li><i class="fas fa-history text-secondary"></i> Access previous analyses from dashboard</li>
+                    <li><i class="fas fa-chart-bar text-info"></i> Track improvement over time</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

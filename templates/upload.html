@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Document - Academic Integrity Checker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-upload"></i> Upload Document for Analysis</h3>
+                <p class="mb-0">Upload your academic document for comprehensive integrity analysis</p>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select Document</label>
+                        <input type="file" class="form-control" id="file" name="file"
+                               accept=".pdf,.docx,.doc,.txt" required>
+                        <div class="form-text">
+                            Supported formats: PDF, DOCX, DOC, TXT (max 50MB)
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="analysis_type" class="form-label">Analysis Type</label>
+                        <select class="form-select" id="analysis_type" name="analysis_type">
+                            <option value="document">Academic Document Analysis</option>
+                            <option value="resume">Resume/CV Analysis</option>
+                        </select>
+                        <div class="form-text">
+                            Choose the appropriate analysis type for your document
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6><i class="fas fa-info-circle"></i> What happens next?</h6>
+                                <ol class="mb-0">
+                                    <li>Your document will be securely uploaded and processed</li>
+                                    <li>Our AI system will analyze for plagiarism, AI content, citations, and writing quality</li>
+                                    <li>You'll receive a comprehensive report with scores and recommendations</li>
+                                    <li>Download the PDF report for your records</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-upload"></i> Upload and Analyze
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-file-alt"></i> Supported File Types</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> PDF Documents</li>
+                            <li><i class="fas fa-check text-success"></i> Microsoft Word (.docx)</li>
+                            <li><i class="fas fa-check text-success"></i> Word 97-2003 (.doc)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Plain Text (.txt)</li>
+                            <li><i class="fas fa-times text-muted"></i> RTF Documents</li>
+                            <li><i class="fas fa-times text-muted"></i> OpenOffice Documents</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-shield-alt"></i> Security & Privacy</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-lock"></i> Files are encrypted during upload</li>
+                    <li><i class="fas fa-eye-slash"></i> Content is processed privately</li>
+                    <li><i class="fas fa-clock"></i> Files are automatically deleted after 24 hours</li>
+                    <li><i class="fas fa-user-secret"></i> Analysis results are only visible to you</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-question-circle"></i> Frequently Asked Questions</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                How long does the analysis take?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Analysis typically takes 30 seconds to 2 minutes depending on document length and complexity.
+                                You'll be redirected to a status page where you can monitor progress.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                What information is included in the report?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Reports include plagiarism detection results, AI content analysis, citation validation,
+                                writing quality assessment, and personalized recommendations for improvement.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Is my document stored or shared?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                No, your documents are not permanently stored. Files are processed in memory and
+                                automatically deleted after 24 hours for privacy and security.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
