@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analyzer - Academic Integrity Checker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .upload-section {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .upload-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 30px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #11998e;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #11998e;
+        }
+
+        .file-upload {
+            border: 3px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 60px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #11998e;
+            background: #f9f9f9;
+        }
+
+        .file-upload i {
+            font-size: 48px;
+            color: #11998e;
+            margin-bottom: 20px;
+        }
+
+        .file-upload p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .btn-analyze {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-analyze:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.visible {
+            display: block;
+        }
+
+        .score-banner {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score-banner h2 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .score-banner p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .result-card h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-card h3 i {
+            color: #11998e;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .metric-value {
+            color: #11998e;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .suggestions-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .suggestion-item {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .suggestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-category {
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .suggestion-priority {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: #ffc107;
+            color: white;
+        }
+
+        .suggestion-text {
+            color: #856404;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-warning {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-danger {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .btn-download {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-download:hover {
+            background: #45a049;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #11998e;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1 onclick="window.location.href='/dashboard'"><i class="fas fa-file-alt"></i> Resume Analyzer</h1>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/analyze" class="nav-link"><i class="fas fa-search"></i> Document Analyzer</a>
+            <a href="/history" class="nav-link"><i class="fas fa-history"></i> History</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="upload-section">
+            <h2><i class="fas fa-file-alt"></i> Professional Resume Analysis</h2>
+            <p style="color: #666; margin-bottom: 30px;">Get comprehensive feedback on your resume including ATS compatibility, keyword optimization, and improvement suggestions</p>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('text')">Paste Resume Text</button>
+                <button class="tab" onclick="switchTab('file')">Upload Resume File</button>
+            </div>
+
+            <div id="text-tab" class="tab-content active">
+                <textarea id="text-input" placeholder="Paste your complete resume text here..."></textarea>
+            </div>
+
+            <div id="file-tab" class="tab-content">
+                <label for="file-input" class="file-upload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p><strong>Click to upload</strong> or drag and drop</p>
+                    <p>Supported formats: TXT, PDF, DOCX (Max 16MB)</p>
+                    <input type="file" id="file-input" accept=".txt,.pdf,.docx,.doc">
+                </label>
+                <div id="file-name" class="hidden" style="margin-top: 15px; text-align: center; color: #11998e;"></div>
+            </div>
+
+            <button class="btn-analyze" onclick="analyzeResume()">
+                <i class="fas fa-search"></i> Analyze Resume
+            </button>
+
+            <div id="loading" class="hidden" style="text-align: center; margin-top: 30px;">
+                <div class="loader"></div>
+                <p style="color: #666; margin-top: 15px;">Analyzing your resume... This may take a moment.</p>
+            </div>
+        </div>
+
+        <div id="results-section" class="results-section">
+            <div class="score-banner">
+                <h2><span id="overall-score">0</span>%</h2>
+                <p id="status-text">Overall Resume Score</p>
+            </div>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h3><i class="fas fa-list"></i> Section Analysis</h3>
+                    <div id="section-results"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3><i class="fas fa-key"></i> Keyword Analysis</h3>
+                    <div id="keyword-results"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3><i class="fas fa-robot"></i> ATS Compatibility</h3>
+                    <div id="ats-results"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3><i class="fas fa-align-left"></i> Formatting</h3>
+                    <div id="formatting-results"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3><i class="fas fa-star"></i> Content Quality</h3>
+                    <div id="content-results"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3><i class="fas fa-envelope"></i> Contact Information</h3>
+                    <div id="contact-results"></div>
+                </div>
+            </div>
+
+            <div class="suggestions-section">
+                <h3 style="margin-bottom: 20px;"><i class="fas fa-lightbulb"></i> Improvement Suggestions</h3>
+                <div id="suggestions-container"></div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn-download" onclick="downloadReport()">
+                    <i class="fas fa-download"></i> Download Full Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSubmissionId = null;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                document.getElementById('file-name').textContent = `Selected: ${fileName}`;
+                document.getElementById('file-name').classList.remove('hidden');
+            }
+        });
+
+        async function analyzeResume() {
+            const textInput = document.getElementById('text-input').value;
+            const fileInput = document.getElementById('file-input').files[0];
+
+            if (!textInput && !fileInput) {
+                alert('Please enter resume text or upload a file');
+                return;
+            }
+
+            document.getElementById('loading').classList.remove('hidden');
+            document.querySelector('.btn-analyze').disabled = true;
+
+            try {
+                let response;
+                if (fileInput) {
+                    const formData = new FormData();
+                    formData.append('file', fileInput);
+                    response = await fetch('/api/analyze-resume', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    response = await fetch('/api/analyze-resume', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: textInput })
+                    });
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentSubmissionId = data.submission_id;
+                    displayResults(data.result);
+                } else {
+                    alert(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                alert('An error occurred. Please try again.');
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+                document.querySelector('.btn-analyze').disabled = false;
+            }
+        }
+
+        function displayResults(result) {
+            document.getElementById('overall-score').textContent = result.overall_score;
+            document.getElementById('status-text').textContent = result.status;
+
+            // Section analysis
+            document.getElementById('section-results').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">Required Sections:</span>
+                    <span class="metric-value">${result.sections.found_required.join(', ')}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Optional Sections:</span>
+                    <span class="metric-value">${result.sections.found_optional.join(', ') || 'None'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Section Score:</span>
+                    <span class="metric-value">${result.sections.section_score}%</span>
+                </div>
+            `;
+
+            // Keyword analysis
+            document.getElementById('keyword-results').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">Total Keywords:</span>
+                    <span class="metric-value">${result.keywords.total_keywords}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Technical Skills:</span>
+                    <span class="metric-value">${result.keywords.keyword_counts.technical}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Soft Skills:</span>
+                    <span class="metric-value">${result.keywords.keyword_counts.soft_skills}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Action Verbs:</span>
+                    <span class="metric-value">${result.keywords.keyword_counts.action_verbs}</span>
+                </div>
+            `;
+
+            // ATS compatibility
+            document.getElementById('ats-results').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">ATS Score:</span>
+                    <span class="metric-value">${result.ats_compatibility.ats_score}%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Is Compatible:</span>
+                    <span class="metric-value">${result.ats_compatibility.is_compatible ? 'Yes' : 'No'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Status:</span>
+                    <span class="status-badge ${getScoreStatusClass(result.ats_compatibility.ats_score)}">${result.ats_compatibility.recommendation}</span>
+                </div>
+            `;
+
+            // Formatting
+            document.getElementById('formatting-results').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">Formatting Score:</span>
+                    <span class="metric-value">${result.formatting.formatting_score}%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Bullet Points:</span>
+                    <span class="metric-value">${result.formatting.bullet_points_used}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Status:</span>
+                    <span class="status-badge ${getScoreStatusClass(result.formatting.formatting_score)}">${result.formatting.recommendation}</span>
+                </div>
+            `;
+
+            // Content quality
+            document.getElementById('content-results').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">Content Score:</span>
+                    <span class="metric-value">${result.content_quality.content_score}%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Has Metrics:</span>
+                    <span class="metric-value">${result.content_quality.has_metrics ? 'Yes' : 'No'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Achievements:</span>
+                    <span class="metric-value">${result.content_quality.quantifiable_achievements}</span>
+                </div>
+            `;
+
+            // Contact info
+            document.getElementById('contact-results').innerHTML = `
+                <div class="metric">
+                    <span class="metric-label">Email:</span>
+                    <span class="metric-value">${result.contact_info.has_email ? '✓' : '✗'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Phone:</span>
+                    <span class="metric-value">${result.contact_info.has_phone ? '✓' : '✗'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">LinkedIn:</span>
+                    <span class="metric-value">${result.contact_info.has_linkedin ? '✓' : '✗'}</span>
+                </div>
+            `;
+
+            // Suggestions
+            const suggestionsHtml = result.suggestions.map(suggestion => `
+                <div class="suggestion-item">
+                    <div class="suggestion-header">
+                        <span class="suggestion-category">${suggestion.category}</span>
+                        <span class="suggestion-priority">${suggestion.priority}</span>
+                    </div>
+                    <div class="suggestion-text">${suggestion.suggestion}</div>
+                </div>
+            `).join('');
+            document.getElementById('suggestions-container').innerHTML = suggestionsHtml;
+
+            document.getElementById('results-section').classList.add('visible');
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getScoreStatusClass(score) {
+            if (score >= 70) return 'status-success';
+            if (score >= 50) return 'status-warning';
+            return 'status-danger';
+        }
+
+        async function downloadReport() {
+            if (!currentSubmissionId) return;
+            window.open(`/api/generate-report/${currentSubmissionId}`, '_blank');
+        }
+    </script>
+</body>
+</html>

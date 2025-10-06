@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Academic Integrity Checker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #66bb6a;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .feature i {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Academic Integrity</h1>
+            <p>AI-Powered Plagiarism & Content Detection System</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('login')">Login</button>
+            <button class="tab" onclick="showTab('register')">Register</button>
+        </div>
+
+        <div class="tab-content">
+            <div id="alert-container"></div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="form-container">
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="login-email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password" required>
+                </div>
+                <button class="btn" onclick="handleLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-search"></i>
+                        <p>Plagiarism Detection</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-robot"></i>
+                        <p>AI Detection</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-quote-right"></i>
+                        <p>Citation Check</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-file-alt"></i>
+                        <p>Resume Analyzer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="form-container hidden">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="register-username" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="register-email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="register-password" placeholder="Create a password" required>
+                </div>
+                <button class="btn" onclick="handleRegister()">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            © 2024 Academic Integrity System | All Rights Reserved
+        </div>
+    </div>
+
+    <script>
+        function showTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+
+            if (tab === 'login') {
+                document.getElementById('login-form').classList.remove('hidden');
+            } else {
+                document.getElementById('register-form').classList.remove('hidden');
+            }
+        }
+
+        function showAlert(message, type = 'error') {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showAlert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    showAlert(data.error || 'Login failed');
+                }
+            } catch (error) {
+                showAlert('An error occurred. Please try again.');
+            }
+        }
+
+        async function handleRegister() {
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            if (!username || !email || !password) {
+                showAlert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('Registration successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    showAlert(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                showAlert('An error occurred. Please try again.');
+            }
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const activeForm = document.querySelector('.form-container:not(.hidden)');
+                if (activeForm.id === 'login-form') {
+                    handleLogin();
+                } else {
+                    handleRegister();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

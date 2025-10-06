@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Academic Integrity Checker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+        }
+
+        .navbar-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card.purple i {
+            color: #667eea;
+        }
+
+        .stat-card.green i {
+            color: #4caf50;
+        }
+
+        .stat-card.orange i {
+            color: #ff9800;
+        }
+
+        .stat-card.blue i {
+            color: #2196f3;
+        }
+
+        .stat-card h3 {
+            font-size: 36px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .action-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-card i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .action-card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .action-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .recent-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .recent-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .recent-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-item-info h4 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .recent-item-info p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .recent-item-score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1><i class="fas fa-shield-alt"></i> Academic Integrity Checker</h1>
+        <div class="navbar-right">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="username">User</span>
+            </div>
+            <button class="btn-logout" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card purple">
+                <i class="fas fa-file-alt"></i>
+                <h3 id="total-submissions">0</h3>
+                <p>Total Submissions</p>
+            </div>
+            <div class="stat-card green">
+                <i class="fas fa-check-circle"></i>
+                <h3>8</h3>
+                <p>AI Modules Active</p>
+            </div>
+            <div class="stat-card orange">
+                <i class="fas fa-chart-line"></i>
+                <h3>99%</h3>
+                <p>Detection Accuracy</p>
+            </div>
+            <div class="stat-card blue">
+                <i class="fas fa-clock"></i>
+                <h3>24/7</h3>
+                <p>System Availability</p>
+            </div>
+        </div>
+
+        <div class="actions-grid">
+            <div class="action-card" onclick="window.location.href='/analyze'">
+                <i class="fas fa-search"></i>
+                <h3>Analyze Document</h3>
+                <p>Check for plagiarism, AI-generated content, and get comprehensive writing feedback</p>
+            </div>
+            <div class="action-card" onclick="window.location.href='/resume-analyzer'">
+                <i class="fas fa-file-alt"></i>
+                <h3>Analyze Resume</h3>
+                <p>Get professional resume analysis with ATS compatibility check and improvement suggestions</p>
+            </div>
+            <div class="action-card" onclick="window.location.href='/history'">
+                <i class="fas fa-history"></i>
+                <h3>View History</h3>
+                <p>Access your previous analyses and download reports</p>
+            </div>
+        </div>
+
+        <div class="recent-section">
+            <h2><i class="fas fa-clock"></i> Recent Submissions</h2>
+            <div id="recent-submissions">
+                <p style="text-align: center; color: #999; padding: 20px;">No submissions yet. Start analyzing documents!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch('/check-auth');
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    window.location.href = '/';
+                } else {
+                    document.getElementById('username').textContent = data.user.username;
+                    loadStats();
+                }
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                document.getElementById('total-submissions').textContent = data.total_submissions;
+                
+                const recentContainer = document.getElementById('recent-submissions');
+                if (data.recent_submissions.length > 0) {
+                    recentContainer.innerHTML = data.recent_submissions.map(sub => `
+                        <div class="recent-item">
+                            <div class="recent-item-info">
+                                <h4>${sub.title}</h4>
+                                <p><i class="fas fa-calendar"></i> ${new Date(sub.date).toLocaleDateString()} | Type: ${sub.type}</p>
+                            </div>
+                            <div class="recent-item-score">${sub.score}%</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await fetch('/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // Initialize
+        checkAuth();
+    </script>
+</body>
+</html>
