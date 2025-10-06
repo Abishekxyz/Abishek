@@ -1,0 +1,554 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Report - Academic Integrity Checker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-file-alt"></i> Analysis Report</h2>
+            <div>
+                <a href="{{ url_for('download_report', analysis_id=analysis.id) }}" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Download PDF
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Overall Score Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3 class="mb-3">Overall Integrity Score</h3>
+                <div class="mb-3">
+                    <span class="display-4 {{ 'text-success' if analysis.overall_integrity_score >= 80 else 'text-warning' if analysis.overall_integrity_score >= 60 else 'text-danger' }}">
+                        {{ analysis.overall_integrity_score }}%
+                    </span>
+                </div>
+                <p class="lead">
+                    {% if analysis.overall_integrity_score >= 90 %}
+                        Excellent - High integrity content with minimal issues
+                    {% elif analysis.overall_integrity_score >= 80 %}
+                        Good - Content shows good integrity with minor issues
+                    {% elif analysis.overall_integrity_score >= 70 %}
+                        Fair - Some integrity concerns that should be addressed
+                    {% elif analysis.overall_integrity_score >= 60 %}
+                        Poor - Significant integrity issues detected
+                    {% else %}
+                        Critical - Major integrity concerns require attention
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Score Breakdown -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="fas fa-search fa-2x text-primary"></i>
+                </div>
+                <h5>Plagiarism</h5>
+                <div class="mb-2">
+                    <span class="h4 {{ 'text-success' if analysis.plagiarism_score >= 80 else 'text-warning' if analysis.plagiarism_score >= 60 else 'text-danger' }}">
+                        {{ analysis.plagiarism_score }}%
+                    </span>
+                </div>
+                <small class="text-muted">Originality Score</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="fas fa-robot fa-2x text-warning"></i>
+                </div>
+                <h5>AI Content</h5>
+                <div class="mb-2">
+                    <span class="h4 {{ 'text-success' if analysis.ai_content_score >= 80 else 'text-warning' if analysis.ai_content_score >= 60 else 'text-danger' }}">
+                        {{ analysis.ai_content_score }}%
+                    </span>
+                </div>
+                <small class="text-muted">Human-Written Score</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="fas fa-quote-left fa-2x text-info"></i>
+                </div>
+                <h5>Citations</h5>
+                <div class="mb-2">
+                    <span class="h4 {{ 'text-success' if analysis.citation_score >= 80 else 'text-warning' if analysis.citation_score >= 60 else 'text-danger' }}">
+                        {{ analysis.citation_score }}%
+                    </span>
+                </div>
+                <small class="text-muted">Citation Quality</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="fas fa-pen-fancy fa-2x text-secondary"></i>
+                </div>
+                <h5>Writing</h5>
+                <div class="mb-2">
+                    <span class="h4 {{ 'text-success' if analysis.readability_score >= 80 else 'text-warning' if analysis.readability_score >= 60 else 'text-danger' }}">
+                        {{ analysis.readability_score }}%
+                    </span>
+                </div>
+                <small class="text-muted">Writing Quality</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Results Tabs -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-list-alt"></i> Detailed Analysis</h4>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="plagiarism-tab" data-bs-toggle="tab" data-bs-target="#plagiarism" type="button" role="tab">
+                            <i class="fas fa-search"></i> Plagiarism
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="ai-tab" data-bs-toggle="tab" data-bs-target="#ai" type="button" role="tab">
+                            <i class="fas fa-robot"></i> AI Content
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="citations-tab" data-bs-toggle="tab" data-bs-target="#citations" type="button" role="tab">
+                            <i class="fas fa-quote-left"></i> Citations
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="writing-tab" data-bs-toggle="tab" data-bs-target="#writing" type="button" role="tab">
+                            <i class="fas fa-pen-fancy"></i> Writing
+                        </button>
+                    </li>
+                    {% if analysis.analysis_type == 'resume' %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab">
+                            <i class="fas fa-file-alt"></i> Resume
+                        </button>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <div class="tab-content mt-3" id="analysisTabsContent">
+                    <!-- Plagiarism Tab -->
+                    <div class="tab-pane fade show active" id="plagiarism" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Plagiarism Detection Results</h5>
+                                <p><strong>Score:</strong> {{ plagiarism_details.get('overall_score', 0) }}%</p>
+                                <p><strong>Risk Level:</strong>
+                                    <span class="badge bg-{{ 'success' if plagiarism_details.get('overall_score', 100) >= 80 else 'warning' if plagiarism_details.get('overall_score', 100) >= 60 else 'danger' }}">
+                                        {{ plagiarism_details.get('risk_level', 'unknown').title() }}
+                                    </span>
+                                </p>
+
+                                {% if plagiarism_details.get('matches') %}
+                                <h6>Detected Matches:</h6>
+                                <div class="list-group">
+                                    {% for match in plagiarism_details['matches'][:5] %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ match.get('type', 'Unknown').title() }}</h6>
+                                            <small>{{ match.get('similarity', 0) }}% similarity</small>
+                                        </div>
+                                        <p class="mb-1">{{ match.get('source', 'Unknown source') }}</p>
+                                        {% if match.get('matched_text') %}
+                                        <small class="text-muted">{{ match['matched_text'][:100] }}{% if match['matched_text']|length > 100 %}...{% endif %}</small>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i> No significant plagiarism detected.
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6>Plagiarism Analysis Summary</h6>
+                                <ul>
+                                    <li><strong>Total Matches:</strong> {{ plagiarism_details.get('details', {}).get('total_matches', 0) }}</li>
+                                    <li><strong>Unique Sources:</strong> {{ plagiarism_details.get('details', {}).get('unique_sources', 0) }}</li>
+                                    <li><strong>Text Length:</strong> {{ plagiarism_details.get('details', {}).get('text_length', 0) }} characters</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Content Tab -->
+                    <div class="tab-pane fade" id="ai" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>AI Content Detection Results</h5>
+                                <p><strong>AI Probability:</strong> {{ (ai_content_details.get('ai_probability', 0) * 100) }}%</p>
+                                <p><strong>Confidence:</strong> {{ (ai_content_details.get('confidence', 0) * 100) }}%</p>
+                                <p><strong>Risk Level:</strong>
+                                    <span class="badge bg-{{ 'success' if ai_content_details.get('ai_probability', 0) < 0.3 else 'warning' if ai_content_details.get('ai_probability', 0) < 0.6 else 'danger' }}">
+                                        {{ ai_content_details.get('risk_level', 'unknown').title() }}
+                                    </span>
+                                </p>
+
+                                {% if ai_content_details.get('ai_indicators') %}
+                                <h6>AI Writing Indicators:</h6>
+                                <div class="list-group">
+                                    {% for indicator, details in ai_content_details['ai_indicators'].items() %}
+                                    {% if details.get('detected', false) %}
+                                    <div class="list-group-item">
+                                        <h6 class="mb-1">{{ indicator.replace('_', ' ').title() }}</h6>
+                                        <p class="mb-1">Confidence: {{ (details.get('confidence', 0) * 100) }}%</p>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6>Detection Details</h6>
+                                <ul>
+                                    <li><strong>Sentences Analyzed:</strong> {{ ai_content_details.get('details', {}).get('sentence_count', 0) }}</li>
+                                    <li><strong>Words Analyzed:</strong> {{ ai_content_details.get('details', {}).get('word_count', 0) }}</li>
+                                    <li><strong>Patterns Detected:</strong> {{ ai_content_details.get('details', {}).get('patterns_detected', 0) }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Citations Tab -->
+                    <div class="tab-pane fade" id="citations" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Citation Validation Results</h5>
+                                <p><strong>Score:</strong> {{ citation_details.get('overall_score', 0) }}%</p>
+                                <p><strong>Total Citations:</strong> {{ citation_details.get('total_citations', 0) }}</p>
+                                <p><strong>Valid Citations:</strong> {{ citation_details.get('valid_citations', 0) }}</p>
+                                <p><strong>Style Consistency:</strong>
+                                    <span class="badge bg-{{ 'success' if citation_details.get('style_consistency') == 'consistent' else 'warning' }}">
+                                        {{ citation_details.get('style_consistency', 'unknown').title() }}
+                                    </span>
+                                </p>
+
+                                {% if citation_details.get('common_issues') %}
+                                <h6>Common Issues:</h6>
+                                <div class="list-group">
+                                    {% for issue in citation_details['common_issues'][:5] %}
+                                    <div class="list-group-item">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i> {{ issue }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6>Citation Details</h6>
+                                {% if citation_details.get('citation_details') %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Citation</th>
+                                                <th>Style</th>
+                                                <th>Valid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for citation in citation_details['citation_details'][:5] %}
+                                            <tr>
+                                                <td><small>{{ citation.get('citation_text', '')[:30] }}{% if citation['citation_text']|length > 30 %}...{% endif %}</small></td>
+                                                <td>{{ citation.get('detected_style', 'Unknown') }}</td>
+                                                <td>
+                                                    {% if citation.get('is_valid', false) %}
+                                                    <i class="fas fa-check text-success"></i>
+                                                    {% else %}
+                                                    <i class="fas fa-times text-danger"></i>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Writing Tab -->
+                    <div class="tab-pane fade" id="writing" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Writing Quality Analysis</h5>
+                                <p><strong>Readability:</strong> {{ writing_feedback.get('readability_score', 0) }}%</p>
+                                <p><strong>Grammar:</strong> {{ writing_feedback.get('grammar_score', 100) }}%</p>
+                                <p><strong>Style:</strong> {{ writing_feedback.get('style_score', 100) }}%</p>
+                                <p><strong>Vocabulary:</strong> {{ writing_feedback.get('vocabulary_score', 100) }}%</p>
+                                <p><strong>Structure:</strong> {{ writing_feedback.get('structure_score', 100) }}%</p>
+
+                                <h6>Readability Metrics:</h6>
+                                {% if writing_feedback.get('readability', {}).get('metrics') %}
+                                <ul>
+                                    <li><strong>Flesch-Kincaid Grade:</strong> {{ writing_feedback['readability']['metrics'].get('flesch_kincaid_grade', 0) }}</li>
+                                    <li><strong>Flesch Reading Ease:</strong> {{ writing_feedback['readability']['metrics'].get('flesch_reading_ease', 0) }}</li>
+                                    <li><strong>Interpretation:</strong> {{ writing_feedback['readability'].get('interpretation', 'Unknown') }}</li>
+                                </ul>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6>Writing Issues</h6>
+                                {% if writing_feedback.get('grammar_issues') or writing_feedback.get('style_issues') %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Grammar Issues:</h6>
+                                        {% if writing_feedback.get('grammar_issues') %}
+                                        <ul class="list-unstyled">
+                                            {% for issue in writing_feedback['grammar_issues'][:3] %}
+                                            <li><i class="fas fa-exclamation-triangle text-warning"></i> {{ issue.get('type', 'Unknown').replace('_', ' ').title() }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% else %}
+                                        <p class="text-success"><i class="fas fa-check"></i> No grammar issues detected</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Style Issues:</h6>
+                                        {% if writing_feedback.get('style_issues') %}
+                                        <ul class="list-unstyled">
+                                            {% for issue in writing_feedback['style_issues'][:3] %}
+                                            <li><i class="fas fa-exclamation-triangle text-warning"></i> {{ issue.get('type', 'Unknown').replace('_', ' ').title() }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% else %}
+                                        <p class="text-success"><i class="fas fa-check"></i> No style issues detected</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <h6>Suggestions:</h6>
+                                {% if writing_feedback.get('suggestions') %}
+                                <ul>
+                                    {% for suggestion in writing_feedback['suggestions'][:5] %}
+                                    <li>{{ suggestion }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resume Tab (if applicable) -->
+                    {% if analysis.analysis_type == 'resume' %}
+                    <div class="tab-pane fade" id="resume" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Resume Analysis Results</h5>
+                                <p><strong>Overall Score:</strong> {{ (resume_analysis.get('overall_score', 0) * 100) }}%</p>
+                                <p><strong>Completeness:</strong> {{ resume_analysis.get('completeness_score', 0) }}%</p>
+                                <p><strong>Format:</strong> {{ resume_analysis.get('format_score', 0) }}%</p>
+                                <p><strong>Content:</strong> {{ resume_analysis.get('content_score', 0) }}%</p>
+                                <p><strong>Keywords:</strong> {{ resume_analysis.get('keyword_score', 0) }}%</p>
+
+                                {% if resume_analysis.get('sections_found') %}
+                                <h6>Sections Present:</h6>
+                                <div class="mb-2">
+                                    {% for section in resume_analysis['sections_found'] %}
+                                    <span class="badge bg-success me-1">{{ section.replace('_', ' ').title() }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                {% if resume_analysis.get('missing_sections') %}
+                                <h6>Missing Sections:</h6>
+                                <div class="mb-2">
+                                    {% for section in resume_analysis['missing_sections'] %}
+                                    <span class="badge bg-warning me-1">{{ section.replace('_', ' ').title() }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6>Resume Details</h6>
+                                {% if resume_analysis.get('contact_info') %}
+                                <div class="mb-3">
+                                    <strong>Contact Information:</strong>
+                                    <ul class="list-unstyled">
+                                        {% if resume_analysis['contact_info'].get('name') %}
+                                        <li><i class="fas fa-user"></i> {{ resume_analysis['contact_info']['name'] }}</li>
+                                        {% endif %}
+                                        {% if resume_analysis['contact_info'].get('email') %}
+                                        <li><i class="fas fa-envelope"></i> {{ resume_analysis['contact_info']['email'] }}</li>
+                                        {% endif %}
+                                        {% if resume_analysis['contact_info'].get('phone') %}
+                                        <li><i class="fas fa-phone"></i> {{ resume_analysis['contact_info']['phone'] }}</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+
+                                {% if resume_analysis.get('skills_analysis') %}
+                                <div class="mb-3">
+                                    <strong>Skills Analysis:</strong>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Technical:</strong> {{ resume_analysis['skills_analysis'].get('technical_skills', [])|join(', ') or 'None detected' }}</li>
+                                        <li><strong>Soft Skills:</strong> {{ resume_analysis['skills_analysis'].get('soft_skills', [])|join(', ') or 'None detected' }}</li>
+                                    </ul>
+                                </div>
+                                {% endif %}
+
+                                <h6>Strengths & Weaknesses:</h6>
+                                {% if resume_analysis.get('strengths') %}
+                                <div class="mb-2">
+                                    <strong>Strengths:</strong>
+                                    <ul class="list-unstyled">
+                                        {% for strength in resume_analysis['strengths'] %}
+                                        <li><i class="fas fa-check text-success"></i> {{ strength }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+
+                                {% if resume_analysis.get('weaknesses') %}
+                                <div class="mb-2">
+                                    <strong>Areas for Improvement:</strong>
+                                    <ul class="list-unstyled">
+                                        {% for weakness in resume_analysis['weaknesses'] %}
+                                        <li><i class="fas fa-exclamation-triangle text-warning"></i> {{ weakness }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recommendations -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-lightbulb"></i> Recommendations</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Immediate Actions:</h5>
+                        <ul>
+                            {% if analysis.plagiarism_score < 70 %}
+                            <li>Review content for potential plagiarism and ensure proper attribution</li>
+                            {% endif %}
+                            {% if analysis.ai_content_score < 70 %}
+                            <li>Ensure content is original and not AI-generated</li>
+                            {% endif %}
+                            {% if analysis.citation_score < 70 %}
+                            <li>Verify and correct citation formatting</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Long-term Improvements:</h5>
+                        <ul>
+                            <li>Maintain consistent citation style throughout document</li>
+                            <li>Focus on original content creation</li>
+                            <li>Regularly review and update writing skills</li>
+                            <li>Use this tool for ongoing content improvement</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Metadata -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Analysis Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Analysis ID:</strong></td>
+                                <td>{{ analysis.id }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Name:</strong></td>
+                                <td>{{ analysis.filename or 'Text Input' }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Analysis Type:</strong></td>
+                                <td>{{ analysis.analysis_type.title() }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Submitted:</strong></td>
+                                <td>{{ analysis.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>File Size:</strong></td>
+                                <td>{{ analysis.file_size or 0 }} bytes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Processing Time:</strong></td>
+                                <td>{{ analysis.processing_time or 0 }} seconds</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Word Count:</strong></td>
+                                <td>{{ analysis.word_count or 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status:</strong></td>
+                                <td><span class="badge bg-success">{{ analysis.status.title() }}</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

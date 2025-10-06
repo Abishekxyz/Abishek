@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Academic Integrity Checker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+        <p class="text-muted">Welcome back, {{ current_user.username }}! Here's your analysis overview.</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Statistics Cards -->
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ total_analyses }}</h5>
+                        <p class="card-text">Total Analyses</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-file-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ completed_analyses }}</h5>
+                        <p class="card-text">Completed</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ total_analyses - completed_analyses if total_analyses > completed_analyses else 0 }}</h5>
+                        <p class="card-text">In Progress</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">
+                            {% if recent_analyses and recent_analyses[0].overall_integrity_score %}
+                                {{ recent_analyses[0].overall_integrity_score }}%
+                            {% else %}
+                                -
+                            {% endif %}
+                        </h5>
+                        <p class="card-text">Latest Score</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Quick Actions -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('upload') }}" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Upload New Document
+                    </a>
+                    <a href="{{ url_for('text_analysis') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit"></i> Analyze Text
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_analyses %}
+                <div class="list-group list-group-flush">
+                    {% for analysis in recent_analyses[:5] %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ analysis.filename or 'Text Input' }}</strong><br>
+                            <small class="text-muted">{{ analysis.analysis_type.title() }} • {{ analysis.created_at.strftime('%m/%d') }}</small>
+                        </div>
+                        <div class="text-end">
+                            {% if analysis.overall_integrity_score %}
+                            <span class="badge bg-{{ 'success' if analysis.overall_integrity_score >= 80 else 'warning' if analysis.overall_integrity_score >= 60 else 'danger' }} fs-6">
+                                {{ analysis.overall_integrity_score }}%
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary">Processing</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-sm">View All Analyses</a>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No analyses yet</p>
+                    <a href="{{ url_for('upload') }}" class="btn btn-primary btn-sm">Get Started</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Analysis Types Chart -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> Analysis Types</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="analysisTypesChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Distribution -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Score Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="scoreDistributionChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Data -->
+<script>
+    // Analysis Types Chart
+    const analysisCtx = document.getElementById('analysisTypesChart').getContext('2d');
+    const analysisTypesChart = new Chart(analysisCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Document Analysis', 'Resume Analysis', 'Text Analysis'],
+            datasets: [{
+                data: [65, 20, 15], // Placeholder data - in real app, calculate from user's analyses
+                backgroundColor: [
+                    '#007bff',
+                    '#28a745',
+                    '#ffc107'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Score Distribution Chart
+    const scoreCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+    const scoreDistributionChart = new Chart(scoreCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Excellent (90-100%)', 'Good (80-89%)', 'Fair (70-79%)', 'Poor (<70%)'],
+            datasets: [{
+                label: 'Analyses',
+                data: [3, 5, 2, 1], // Placeholder data
+                backgroundColor: [
+                    '#28a745',
+                    '#20c997',
+                    '#ffc107',
+                    '#dc3545'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
